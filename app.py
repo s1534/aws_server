@@ -33,7 +33,6 @@ random_forest_model = pickle.load(open(model_file, 'rb'))
 def eval_skelton():
     global eval_json
     global evals
-    print('ここまでのものを評価します')
     df = pd.read_csv(r"server_side/test_data/sample.csv")
     test_x = df.drop(['action_label'], axis=1)
     predict = random_forest_model.predict(test_x)
@@ -44,6 +43,7 @@ def eval_skelton():
     with open('server_side/tmp.txt', 'w') as f:
         for d in eval_json["evals"]:
             f.write("%s\n" % d)
+
 
 
 @app.route('/')
@@ -62,7 +62,5 @@ def model():
 
     return make_response(jsonify(eval_json))
 
-
 if __name__ == "__main__":
-
     app.run(debug=True)
