@@ -1,23 +1,13 @@
-import sys
-import cv2
-from itertools import cycle
 import numpy as np
 import time
 from collections import namedtuple
-import pyrealsense2 as rs
-import math
-import tifffile
-import csv
 from traceback import print_exc
 from pdb import set_trace
-import datetime
 from threading import Event, Thread
-import os
 from flask import Flask, render_template, request, make_response, jsonify, g
 import pandas as pd
 import pickle
 from collections import deque
-import json
 
 app = Flask(__name__)
 
