@@ -15,7 +15,6 @@ from pdb import set_trace
 import datetime
 from threading import Event, Thread
 import os
-import setproctitle
 from flask import Flask, render_template, request, make_response, jsonify,g
 import pandas as pd
 import pickle
