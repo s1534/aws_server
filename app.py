@@ -27,8 +27,8 @@ eval_json = {
 values = [0] * 50
 evals = deque(values)
 
-file = 'server_side/train_model/trained_model.pkl'
-random_forest_model = pickle.load(open(file, 'rb'))
+model_file = 'model/trained_model.pkl'
+random_forest_model = pickle.load(open(model_file, 'rb'))
 
 def eval_skelton():
     global eval_json
