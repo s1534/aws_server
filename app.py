@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import json
 from collections import namedtuple
 from traceback import print_exc
 from pdb import set_trace
@@ -14,37 +15,30 @@ app = Flask(__name__)
 # Setting CSV limit
 CSV_ROW_NUM = 150
 
-skeleton_list = []
-skeleton_list_out = []
-event = Event()
-
-eval_json = {
-    "evals": [
-        0, 20, 40, 60, 80, 100
-    ]
-}
-
-values = [0] * 50
-evals = deque(values)
-
 model_file = 'model/trained_model.pkl'
 random_forest_model = pickle.load(open(model_file, 'rb'))
 
+json_path = 'eval.json'
 def eval_skelton():
     global eval_json
-    global evals
     df = pd.read_csv(r"test_data/sample.csv")
     test_x = df.drop(['action_label'], axis=1)
     predict = random_forest_model.predict(test_x)
-    evals.append(predict[0])
-    evals.popleft()
-    eval_json["evals"] = list(evals)
 
-    with open('server_side/tmp.txt', 'w') as f:
-        for d in eval_json["evals"]:
-            f.write("%s\n" % d)
-
-
+    with open(json_path) as f:
+        json_data = json.load(f)
+        print(json_data)
+        print(type(json_data))
+        return json_data
+        # pre_data = deque(json_data['evals'])
+        # pre_data.append(predict[0])
+        # pre_data.popleft()
+        # print('----------------------------')
+        # print(pre_data)
+        # list_data = list(pre_data)
+        # print(list_data)
+        # json_data['evals'] = list_data
+        # return json_data
 
 @app.route('/')
 def index():
@@ -52,14 +46,16 @@ def index():
 
 
 @app.route('/model')
-def predict_json():
-    with open('eval.txt') as f:
-        lines = f.readlines()
-        lines = [line.rstrip('\n') for line in lines]
-    global eval_json
-    eval_json["evals"] = lines
+def return_json():
+    # modelで評価
+    json_data = eval_skelton()
+    with open(json_path, 'w') as file:
+        json.dump(json_data, file, indent=2)
 
-    return make_response(jsonify(eval_json))
+    with open('eval.json') as f:
+        return make_response(jsonify(json_data))
+
+    #     # return make_response(jsonify(eval_json))
 
 if __name__ == "__main__":
     app.run(debug=True)
