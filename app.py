@@ -1,5 +1,4 @@
 import numpy as np
-import time
 import json
 from collections import namedtuple
 from traceback import print_exc
@@ -9,6 +8,8 @@ from flask import Flask, render_template, request, make_response, jsonify, g
 import pandas as pd
 import pickle
 from collections import deque
+from dotenv import load_dotenv
+import boto3
 
 app = Flask(__name__)
 
@@ -17,14 +18,22 @@ CSV_ROW_NUM = 150
 
 model_file = 'model/trained_model.pkl'
 random_forest_model = pickle.load(open(model_file, 'rb'))
-
 json_path = 'eval.json'
+
+
+def download_csv():
+    load_dotenv()
+    Bucket = 'm1gp-mishima'
+    Key = 'test_data/test.csv'
+    s3 = boto3.resource('s3')
+    s3.Bucket(Bucket).download_file(Filename=Key, Key=Key)
+
+
 def eval_skelton():
     global eval_json
-    df = pd.read_csv(r"test_data/sample.csv")
+    df = pd.read_csv(r"test_data/test.csv")
     test_x = df.drop(['action_label'], axis=1)
     predict = random_forest_model.predict(test_x)
-
     with open(json_path) as f:
         json_data = json.load(f)
         print(json_data)
@@ -40,6 +49,7 @@ def eval_skelton():
         # json_data['evals'] = list_data
         # return json_data
 
+
 @app.route('/')
 def index():
     return 'Hello World'
@@ -47,6 +57,8 @@ def index():
 
 @app.route('/model')
 def return_json():
+    # 最新の骨格情報を取得
+    download_csv()
     # modelで評価
     json_data = eval_skelton()
     with open(json_path, 'w') as file:
@@ -54,6 +66,7 @@ def return_json():
 
     with open('eval.json') as f:
         return make_response(jsonify(json_data))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
