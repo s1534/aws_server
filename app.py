@@ -55,7 +55,5 @@ def return_json():
     with open('eval.json') as f:
         return make_response(jsonify(json_data))
 
-    #     # return make_response(jsonify(eval_json))
-
 if __name__ == "__main__":
     app.run(debug=True)
