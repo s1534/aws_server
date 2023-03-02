@@ -24,9 +24,10 @@ json_path = 'eval.json'
 def download_csv():
     load_dotenv()
     Bucket = 'm1gp-mishima'
-    Key = 'test_data/test.csv'
+    Key = 'test.csv'
+    Filename = 'test_data/test.csv'
     s3 = boto3.resource('s3')
-    s3.Bucket(Bucket).download_file(Filename=Key, Key=Key)
+    s3.Bucket(Bucket).download_file(Filename=Filename, Key=Key)
 
 
 def eval_skelton():
