@@ -35,39 +35,33 @@ def eval_skelton():
     df = pd.read_csv(r"test_data/test.csv")
     test_x = df.drop(['action_label'], axis=1)
     predict = random_forest_model.predict(test_x)
+
+    # json読み込み
     with open(json_path) as f:
         json_data = json.load(f)
-        print(json_data)
-        print(type(json_data))
-        return json_data
-        # pre_data = deque(json_data['evals'])
-        # pre_data.append(predict[0])
-        # pre_data.popleft()
-        # print('----------------------------')
-        # print(pre_data)
-        # list_data = list(pre_data)
-        # print(list_data)
-        # json_data['evals'] = list_data
-        # return json_data
-
+        json_list = json_data['evals']
+        json_list.pop(0)
+        json_list.append(str(predict[0]))
+        json_data['evals'] = json_list
+        result_json = json_data
+    # jsonに書き込み
+    with open(json_path, 'w') as json_data:
+        json.dump(result_json, json_data, indent=4)
 
 @app.route('/')
 def index():
     return 'Hello World'
-
 
 @app.route('/model')
 def return_json():
     # 最新の骨格情報を取得
     download_csv()
     # modelで評価
-    json_data = eval_skelton()
-    with open(json_path, 'w') as file:
-        json.dump(json_data, file, indent=2)
-
+    eval_skelton()
+    
     with open('eval.json') as f:
+        json_data = json.load(f)
         return make_response(jsonify(json_data))
-
 
 if __name__ == "__main__":
     app.run(debug=True)
